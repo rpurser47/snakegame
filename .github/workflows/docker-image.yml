@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Snake Game Docker image
-      run: docker build --pull --rm -f "DockerFile" -t snakegame:latest
+      run: docker build . --file Dockerfile --tag snakegame:latest
