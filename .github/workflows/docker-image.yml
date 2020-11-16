@@ -21,7 +21,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
         
-      - name: 'Build and push image'
+      - name: 'Build docker image and push to Azure'
         uses: azure/docker-login@v1
         with:
           login-server: snakegameregistry.azurecr.io
