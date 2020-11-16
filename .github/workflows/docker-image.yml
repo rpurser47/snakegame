@@ -1,4 +1,4 @@
-name: Make Docker Image
+name: Make and Push Docker Image to Azure
 
 on:
   push:
