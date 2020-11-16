@@ -16,5 +16,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the Snake Game Docker image
       run: |
-        docker build . --tag snakegame:latest
+        docker build . --tag snakegameregistry.azurecr.io/snakegame:latest
         docker push snakegameregistry.azurecr.io/snakegame:latest
