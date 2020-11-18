@@ -1,12 +1,37 @@
-body {
-    background-color: lightblue;
+@font-face {
+  font-family: Trattatello;
+  src: url(Trattatello.ttf);
+}
+
+.detailarea {
+    background-color:lightpink;
   }
   
-  h1 {
-    color: white;
+  .titlearea {
+    background-color:lightpink;
+  }
+
+  .title {
+    color: darkorchid;
     text-align: center;
+    font-family: Trattatello;
+    font-size: 90pt;
+    text-shadow: 5px 5px 10px orchid;
+    -webkit-text-stroke: 1px black;
+  }
+
+  .game {
+    position: relative;
+    width: 100%;
+    background-color: blue;
   }
   
+  h2 {
+    color: darkorchid;
+    text-align: center;
+    font-family: Trattatello;   
+  }
+
   p {
     font-family: verdana;
     font-size: 20px;
