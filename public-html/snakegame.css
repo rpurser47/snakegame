@@ -5,13 +5,13 @@
 
 .detailarea {
     background-color:lightpink;
-  }
+}
   
-  .titlearea {
+ .titlearea {
     background-color:lightpink;
-  }
+ }
 
-  .title {
+ .title {
     color: darkorchid;
     text-align: center;
     font-family: Trattatello;
@@ -33,6 +33,6 @@
   }
 
   p {
-    font-family: verdana;
+    font-family: cursive;
     font-size: 20px;
   }
