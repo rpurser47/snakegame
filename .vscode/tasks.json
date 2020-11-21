@@ -1,0 +1,30 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Docker image",
+            "type": "shell",
+            "command": "docker build . --tag snakegameregistry.azurecr.io/snakegame:latest",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Deploy Docker image",
+            "type": "shell",
+            "command": "docker run -dit --rm --name snakegame -p 8080:80 snakegameregistry.azurecr.io/snakegame:latest",
+            "problemMatcher": []
+        },
+        {
+            "label": "Put on version number",
+            "type": "shell",
+            "command": "Set-Content -path public-html/index.html ((Get-Content -path public-html/index_template.html) -replace '__BUILD__',$(git rev-list HEAD --count))",
+            "problemMatcher": []
+        }
+
+    ]
+}
