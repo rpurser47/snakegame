@@ -8,23 +8,33 @@
             "type": "shell",
             "command": "docker build . --tag snakegameregistry.azurecr.io/snakegame:latest",
             "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Version label",
+            "type": "shell",
+            "command": "Set-Content -path public-html/index.html ((Get-Content -path public-html/index_template.html) -replace '__BUILD__',$(git rev-list HEAD --count))",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Snakegame",
+            "dependsOn": [
+                "Version label",
+                "Build Docker image"
+            ],
+            "dependsOrder": "sequence",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": []
         },
         {
             "label": "Deploy Docker image",
             "type": "shell",
             "command": "docker run -dit --rm --name snakegame -p 8080:80 snakegameregistry.azurecr.io/snakegame:latest",
-            "problemMatcher": []
-        },
-        {
-            "label": "Put on version number",
-            "type": "shell",
-            "command": "Set-Content -path public-html/index.html ((Get-Content -path public-html/index_template.html) -replace '__BUILD__',$(git rev-list HEAD --count))",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "group": "none"
         }
-
     ]
 }
