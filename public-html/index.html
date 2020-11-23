@@ -20,18 +20,18 @@
 </head>
 
 <body onload="drawCircle()">
-    <div class="jumbotron text-center titlearea">
+    <div class="jumbotron text-center titlearea" id= "titlesection">
         <p class="title">Quite Cool Snake Game</p>
         <p>Okay, it's not really that cool -- it's more about the journey than the destination</p>
     </div>
 
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 detailarea">
+            <div class="col-lg-8 detailarea" id="gamesection">
                 <h2>The Destination (Game)</h2>
                 <canvas id="snakegame-canvas" class="game" width="1024" height="1024"></canvas>
             </div>
-            <div class="col-lg-4 detailarea">
+            <div class="col-lg-4 detailarea" id="backgroundsection">
                 <h2>The Journey (Things I Learned)</h2>
                 <p>
                 <ul>
@@ -43,8 +43,9 @@
                     <li>HTML Canvas</li>
                     <li>Websockets and <a href="https://wamp-proto.org/">WAMP</a></li>
                     <li>RUST</li>
-                    <li>Unit testing of website using ???, <a href="https://crossbar.io/autobahn/">Autobahn
-                            testsuite</a> for websocket, and ??? for RUST</li>
+                    <li>Unit testing of website using <a href="https://www.selenium.dev/">Selenium</a>, <a
+                            href="https://crossbar.io/autobahn/">Autobahn
+                            testsuite</a> for websocket, and RUST Unit Tests for RUST</li>
                 </ul>
                 </p>
                 <h2>Information</h2>
@@ -58,7 +59,7 @@
             </div>
         </div>
     </div>
-    <div class="footer">&#169; Rob Purser, Version 0.0.0.24</div>
+    <div class="footer">&#169; Rob Purser, Version 0.0.0.29</div>
     </div>
 </body>
 
