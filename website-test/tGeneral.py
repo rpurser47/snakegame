@@ -1,10 +1,12 @@
 import unittest
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
 
 class TestSnakeGame(unittest.TestCase):
 
     def test_basic(self):
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')        
         self.browser = webdriver.Chrome()
         self.addCleanup(self.browser.quit)
 
