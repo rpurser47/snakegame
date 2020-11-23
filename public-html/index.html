@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="snakegame.css">
+    <title>Quite Cool Snake Game by Rob Purser</title>
+
+    <script>
+        function drawCircle() {
+            var c = document.getElementById("snakegame-canvas");
+            var ctx = c.getContext("2d");
+            ctx.beginPath();
+            ctx.arc(95, 50, 40, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
+    </script>
+
+</head>
+
+<body onload="drawCircle()">
+    <div class="jumbotron text-center titlearea">
+        <p class="title">Quite Cool Snake Game</p>
+        <p>Okay, it's not really that cool -- it's more about the journey than the destination</p>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 detailarea">
+                <h2>The Destination (Game)</h2>
+                <canvas id="snakegame-canvas" class="game" width="1024" height="1024"></canvas>
+            </div>
+            <div class="col-lg-4 detailarea">
+                <h2>The Journey (Things I Learned)</h2>
+                <p>
+                <ul>
+                    <li>GitHub Actions</li>
+                    <li>Azure Cloud Services</li>
+                    <li>Docker</li>
+                    <li>Apache HTTPD Server</li>
+                    <li>Bootstrap</li>
+                    <li>HTML Canvas</li>
+                    <li>Websockets and <a href="https://wamp-proto.org/">WAMP</a></li>
+                    <li>RUST</li>
+                    <li>Unit testing of website using ???, <a href="https://crossbar.io/autobahn/">Autobahn
+                            testsuite</a> for websocket, and ??? for RUST</li>
+                </ul>
+                </p>
+                <h2>Information</h2>
+                <p>
+                <ul>
+                    <li><a href="https://github.com/rpurser47/snakegame" target="_blank"> GitHub Repo</a></li>
+                    <li><a href="https://snakegame-rpurser47.azurewebsites.net" target="_blank">Website on Azure</a>
+                    </li>
+                </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="footer">&#169; Rob Purser, Version 0.0.0.24</div>
+    </div>
+</body>
+
+</html>
