@@ -1,14 +1,23 @@
 mod snake;
-pub use crate::snake::snake::Snake;
+mod game;
+use crate::game::game::Game;
+//use crate::snake::snake::Snake;
 const PI:f64 = 3.14159;
 
 fn main() {
-    let mut my_snake = Snake::new();
-    println!("mySnake @ time 0: {} ",my_snake);
-    my_snake.update(1.0);
-    println!("mySnake @ time 1: {} ",my_snake);
-    my_snake.turn(PI / 4.0,1.0);
-    println!("mySnake @ time 1: {} ",my_snake);
-    my_snake.update(2.0);
-    println!("mySnake @ time 2: {} ",my_snake);
+    let mut my_game = Game::new();
+    let snake_id = my_game.add_snake(0.0);
+    my_game.get_size();
+
+    println!("mySnake @ time {:.1}: {} ",my_game.get_time(),my_game.get_snake(snake_id).unwrap());
+    
+    my_game.advance_clock(1.0);
+    println!("mySnake @ time {:.1}: {} ",my_game.get_time(),my_game.get_snake(snake_id).unwrap());
+
+    my_game.turn_snake(snake_id, PI / 4.0,1.0).expect("Can't find snake!");
+    println!("mySnake @ time {:.1}: {} ",my_game.get_time(),my_game.get_snake(snake_id).unwrap());
+     
+    my_game.advance_clock(1.0);
+    println!("mySnake @ time {:.1}: {} ",my_game.get_time(),my_game.get_snake(snake_id).unwrap());
+
 }

@@ -7,11 +7,11 @@ pub mod snake {
     }
 
     impl Snake {
-        pub fn new() -> Snake {
+        pub fn new(event_time: f64) -> Snake {
             Snake {
                 location: vec![0.0, 0.0],
                 velocity: vec![0.0, 1.0],
-                last_updated: 0.0,
+                last_updated: event_time,
             }
         }
 
@@ -48,7 +48,7 @@ pub mod snake {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             write!(
                 f,
-                "loc = ({}, {}), vel = ({},{})",
+                "loc = ({:.1}, {:.1}), vel = ({:.1},{:.1})",
                 self.location[0], self.location[1], self.velocity[0], self.velocity[1]
             )
         }
@@ -56,8 +56,7 @@ pub mod snake {
 
     #[test]
     fn t_new() {
-        use crate::Snake;
-        let test_snake = Snake::new();
+        let test_snake = Snake::new(0.0);
         // new snakes start out at the center
         let loc = test_snake.get_location();
         assert_eq!(0.0,loc[0]);
@@ -71,8 +70,7 @@ pub mod snake {
 
     #[test]
     fn t_update() {
-        use crate::Snake;
-        let mut test_snake = Snake::new();
+        let mut test_snake = Snake::new(0.0);
 
         // new snake should be at Y = 1 at clock 1, Y = 2 at clock 2, Y = .5 at clock .5
         test_snake.update(1.0);
@@ -96,7 +94,7 @@ pub mod snake {
     fn t_turn() {
         const PI:f64 = 3.14159;
         use assert_approx_eq::assert_approx_eq;
-        let mut test_snake = Snake::new();
+        let mut test_snake = Snake::new(0.0);
 
         // new snake should be at velY = 1 
         let vel1 = test_snake.get_velocity();
@@ -107,13 +105,13 @@ pub mod snake {
         test_snake.turn(PI,0.0);
         let vel2 = test_snake.get_velocity();
         assert_approx_eq!(0.0,vel2[0],1e-5);
-        assert_approx_eq!(-1.0,vel2[1]);
+        assert_approx_eq!(-1.0,vel2[1],1e-5);
 
         // snake should be at Y = -1 after one second
         test_snake.update(1.0);
         let loc1 = test_snake.get_location();
         assert_approx_eq!( 0.0,loc1[0],1e-5);
-        assert_approx_eq!(-1.0,loc1[1]);
+        assert_approx_eq!(-1.0,loc1[1],1e-5);
 
        // snake should be at vel (.71,-.71) after a turn of -PI/4.0 radians (-45 degrees)
        test_snake.turn(PI/4.0,1.0);
