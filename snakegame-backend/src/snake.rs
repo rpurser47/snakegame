@@ -11,8 +11,8 @@ pub mod snake {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             write!(
                 f,
-                "sweep area from ({:.1}, {:.1}) to ({:.1},{:.1}), {:.1} wide.",
-                self.start_loc.x, self.start_loc.y, self.end_loc.x, self.end_loc.y,self.width
+                "sweep area from {} to {}, {:.1}",
+                self.start_loc, self.end_loc, self.width
             )
         }
     }
@@ -22,6 +22,15 @@ pub mod snake {
         velocity: Velocity,
         last_updated: f64,
         size: f64,
+    }
+    impl fmt::Display for Snake {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(
+                f,
+                "Snake at {}, vel {}, size {:.1}",
+                self.location, self.velocity, self.size
+            )
+        }
     }
 
     impl Snake {
@@ -76,16 +85,6 @@ pub mod snake {
 
         pub fn _get_size(&self) -> f64 {
             self.size
-        }
-    }
-
-    impl fmt::Display for Snake {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(
-                f,
-                "loc = ({:.1}, {:.1}), vel = ({:.1},{:.1}), size = {:.1}",
-                self.location.x, self.location.y, self.velocity.delta_x, self.velocity.delta_y, self.size
-            )
         }
     }
 

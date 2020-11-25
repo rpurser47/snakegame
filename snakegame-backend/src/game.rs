@@ -1,8 +1,29 @@
 pub mod common {
+    use std::fmt;
+
     #[derive(Copy, Clone)]
     pub struct Coordinates {pub x:f64, pub y:f64}
+    impl fmt::Display for Coordinates {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(
+                f,
+                "({:.1},{:.1})",
+                self.x, self.y
+            )
+        }
+    }
+
     #[derive(Copy, Clone)]
     pub struct Velocity {pub delta_x:f64, pub delta_y:f64}
+    impl fmt::Display for Velocity {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(
+                f,
+                "<{:.1},{:.1}>",
+                self.delta_x, self.delta_y
+            )
+        }
+    }
 }
 
 pub mod game {
