@@ -1,20 +1,22 @@
 pub mod food {
     use std::fmt;
+    use crate::game::common::Coordinates;
+
     pub struct Food {
-        location: Vec<f64>,
+        location: Coordinates,
         nutrition: f64,
     }
 
     impl Food {
-        pub fn new(loc: Vec<f64>) -> Food {
+        pub fn new(x_placement:f64, y_placement:f64) -> Food {
             Food {
-                location: loc,
+                location: Coordinates{x: x_placement, y: y_placement},
                 nutrition: 1.0,
             }
         }
 
-        pub fn get_location(&self) -> Vec<f64> {
-            self.location.to_owned()
+        pub fn get_location(&self) -> Coordinates {
+            self.location
         }
 
         pub fn get_nutrition(&self) -> f64 {
@@ -27,18 +29,18 @@ pub mod food {
             write!(
                 f,
                 "loc = ({:.1}, {:.1}), nutrition = {:.1}",
-                self.location[0], self.location[1], self.nutrition
+                self.location.x, self.location.y, self.nutrition
             )
         }
     }
 
     #[test]
     fn t_new() {
-        let test_food = Food::new(vec![0.0,0.0]);
+        let test_food = Food::new(0.0,0.0);
  
         let loc = test_food.get_location();
-        assert_eq!(0.0,loc[0]);
-        assert_eq!(0.0,loc[1]);
+        assert_eq!(0.0,loc.x);
+        assert_eq!(0.0,loc.y);
         
         // new food starts out with nutrition of 1
         let nut = test_food.get_nutrition();

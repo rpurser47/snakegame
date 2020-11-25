@@ -1,7 +1,15 @@
+pub mod common {
+    #[derive(Copy, Clone)]
+    pub struct Coordinates {pub x:f64, pub y:f64}
+    #[derive(Copy, Clone)]
+    pub struct Velocity {pub delta_x:f64, pub delta_y:f64}
+}
+
 pub mod game {
     use crate::snake::snake::Snake;
     use crate::snake::snake::SweepArea;
     use crate::food::food::Food;
+    //use crate::game::common::{Coordinates,Velocity};
     use std::collections::HashMap;
 
     pub struct Game {
@@ -34,10 +42,9 @@ pub mod game {
             let mut new_game = Game::new_blank_game();
             
             for _i in 1..10 {
-                let x:f64 = rng.gen_range(new_game.size / -2.0 , new_game.size / 2.0);
-                let y:f64 = rng.gen_range(new_game.size / -2.0 , new_game.size / 2.0);
-                let loc=vec![x,y];
-                new_game.add_food(loc);
+                let x = rng.gen_range(new_game.size / -2.0 , new_game.size / 2.0);
+                let y = rng.gen_range(new_game.size / -2.0 , new_game.size / 2.0);
+                new_game.add_food(x,y);
             }
             new_game
         }
@@ -45,16 +52,16 @@ pub mod game {
         fn _new_test_game() -> Game {
             let mut new_game = Game::new_blank_game();
             // lay out the food in a predicatible pattern
-            new_game.add_food(vec![-50.0, 50.0]);
-            new_game.add_food(vec![-40.0, 40.0]);
-            new_game.add_food(vec![-30.0, 30.0]);
-            new_game.add_food(vec![-20.0, 20.0]);
-            new_game.add_food(vec![-10.0, 10.0]);
-            new_game.add_food(vec![ 10.0,-10.0]);
-            new_game.add_food(vec![ 20.0,-20.0]);
-            new_game.add_food(vec![ 30.0,-30.0]);
-            new_game.add_food(vec![ 40.0,-40.0]);
-            new_game.add_food(vec![ 50.0,-50.0]);
+            new_game.add_food(-50.0, 50.0);
+            new_game.add_food(-40.0, 40.0);
+            new_game.add_food(-30.0, 30.0);
+            new_game.add_food(-20.0, 20.0);
+            new_game.add_food(-10.0, 10.0);
+            new_game.add_food( 10.0,-10.0);
+            new_game.add_food( 20.0,-20.0);
+            new_game.add_food( 30.0,-30.0);
+            new_game.add_food( 40.0,-40.0);
+            new_game.add_food( 50.0,-50.0);
             new_game
         }
 
@@ -85,10 +92,10 @@ pub mod game {
                 for (food_id, this_food) in self.food.iter() {
                     // simple algorithm - if food location is inside rectangle enclosing coverage area, it's a hit
                     let foodloc = this_food.get_location();
-                    if foodloc[0] > coverage.start_loc[0].min(coverage.end_loc[0]) - coverage.width / 2.0 &&
-                        foodloc[0] < coverage.start_loc[0].max(coverage.end_loc[0]) + coverage.width / 2.0 &&
-                        foodloc[1] > coverage.start_loc[1].min(coverage.end_loc[1]) - coverage.width / 2.0 &&
-                        foodloc[1] < coverage.start_loc[1].max(coverage.end_loc[1]) +  coverage.width / 2.0 {
+                    if foodloc.x > coverage.start_loc.x.min(coverage.end_loc.x) - coverage.width / 2.0 &&
+                        foodloc.x < coverage.start_loc.x.max(coverage.end_loc.x) + coverage.width / 2.0 &&
+                        foodloc.y > coverage.start_loc.y.min(coverage.end_loc.y) - coverage.width / 2.0 &&
+                        foodloc.y < coverage.start_loc.y.max(coverage.end_loc.y) +  coverage.width / 2.0 {
                             food_idxs_to_eat.push(*food_id);
                     }
                 }
@@ -146,10 +153,10 @@ pub mod game {
             }
         }
 
-        pub fn add_food(&mut self, loc:Vec<f64>) -> usize {
+        pub fn add_food(&mut self, x:f64, y:f64) -> usize {
             let id = self.next_food_id;
             self.next_food_id += 1;
-            self.food.insert(id,Food::new(loc));
+            self.food.insert(id,Food::new(x,y));
             id
         }
 
@@ -194,10 +201,14 @@ pub mod game {
         assert_eq!(test_game._get_food_count(),10);
         
         let this_food = test_game._get_food(0).expect("Didn't get food as expected!");
-        assert_eq!(this_food.get_location(),vec![-50.0, 50.0]);
+        let loc = this_food.get_location();
+        assert_eq!(loc.x,-50.0);
+        assert_eq!(loc.y, 50.0);
         
         let this_food = test_game._get_food(8).expect("Didn't get food as expected!");
-        assert_eq!(this_food.get_location(),vec![40.0,-40.0]);
+        let loc = this_food.get_location();
+        assert_eq!(loc.x, 40.0);
+        assert_eq!(loc.y,-40.0);
     }
 
     #[test]
@@ -258,8 +269,8 @@ pub mod game {
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
             let vel = test_snake._get_velocity();
-            assert_eq!(0.0,vel[0]);
-            assert_eq!(1.0,vel[1]);
+            assert_eq!(0.0,vel.delta_x);
+            assert_eq!(1.0,vel.delta_y);
         }
 
         // snake should be at velY = -1 after a turn of PI radians (180 degrees)
@@ -268,8 +279,8 @@ pub mod game {
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
             let vel = test_snake._get_velocity();
-            assert_approx_eq!(0.0,vel[0],1e-5);
-            assert_approx_eq!(-1.0,vel[1],1e-5);
+            assert_approx_eq!(0.0,vel.delta_x,1e-5);
+            assert_approx_eq!(-1.0,vel.delta_y,1e-5);
         }
 
         // snake should be at Y = -1 after one second
@@ -277,8 +288,8 @@ pub mod game {
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
             let loc = test_snake._get_location();
-            assert_approx_eq!( 0.0,loc[0],1e-5);
-            assert_approx_eq!(-1.0,loc[1],1e-5);
+            assert_approx_eq!( 0.0,loc.x,1e-5);
+            assert_approx_eq!(-1.0,loc.y,1e-5);
         }
 
         // snake should be at vel (.71,-.71) after a turn of -PI/4.0 radians (-45 degrees)
@@ -287,8 +298,8 @@ pub mod game {
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
             let vel = test_snake._get_velocity();
-            assert_approx_eq!( 0.7071,vel[0],1e-5);
-            assert_approx_eq!(-0.7071,vel[1],1e-5);
+            assert_approx_eq!( 0.7071,vel.delta_x,1e-5);
+            assert_approx_eq!(-0.7071,vel.delta_y,1e-5);
         }
 
         // snake should be at pos (.71,-1.71) after two seconds
@@ -296,8 +307,8 @@ pub mod game {
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
             let loc = test_snake._get_location();
-            assert_approx_eq!( 0.7071,loc[0],1e-5);
-            assert_approx_eq!(-1.7071,loc[1],1e-5);
+            assert_approx_eq!( 0.7071,loc.x,1e-5);
+            assert_approx_eq!(-1.7071,loc.y,1e-5);
             }
         
     }
@@ -316,8 +327,8 @@ pub mod game {
         let snake2 = test_game.get_snake(snake2_id).unwrap();
         let vel = snake1._get_velocity();
         let vel2 = snake2._get_velocity();
-        assert_ne!(vel[0],vel2[0]);
-        assert_ne!(vel[1],vel2[1]);
+        assert_ne!(vel.delta_x,vel2.delta_x);
+        assert_ne!(vel.delta_y,vel2.delta_y);
     }
 
     #[test]
@@ -326,11 +337,13 @@ pub mod game {
 
         assert_eq!(test_game._get_food_count(),0);
 
-        let food_id = test_game.add_food(vec![23.0,34.0]);
+        let food_id = test_game.add_food(23.0,34.0);
         assert_eq!(test_game._get_food_count(),1);
         
         let this_food = test_game._get_food(food_id).expect("Didn't get food as expected!");
-        assert_eq!(this_food.get_location(),vec![23.0,34.0]);
+        let loc = this_food.get_location();
+        assert_eq!(loc.x,23.0);
+        assert_eq!(loc.y,34.0);
 
     }
 }

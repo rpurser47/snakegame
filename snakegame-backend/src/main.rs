@@ -8,8 +8,8 @@ const PI:f64 = 3.14159;
 fn main() {
     let mut my_game = Game::new();
     let snake_id = my_game.add_snake(0.0);
-    my_game.add_food(vec![0.0,1.0]);
-    my_game.add_food(vec![-0.7,1.7]);
+    my_game.add_food(0.0,1.0);
+    my_game.add_food(-0.7,1.7);
     my_game.get_size();
 
     println!("mySnake @ time {:.1}: {} ",my_game.get_time(),my_game.get_snake(snake_id).unwrap());
