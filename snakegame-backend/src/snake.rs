@@ -17,6 +17,7 @@ pub mod snake {
         }
     }
 
+    #[derive(Copy, Clone)]
     pub struct Snake {
         location: Coordinates,
         velocity: Velocity,
@@ -75,15 +76,15 @@ pub mod snake {
             self.size += nutrition / 10.0;
         }
 
-        pub fn _get_location(&self) -> Coordinates {
+        pub fn get_location(&self) -> Coordinates {
             self.location
         }
 
-        pub fn _get_velocity(&self) -> Velocity {
+        pub fn get_velocity(&self) -> Velocity {
             self.velocity
         }
 
-        pub fn _get_size(&self) -> f64 {
+        pub fn get_size(&self) -> f64 {
             self.size
         }
     }
@@ -92,16 +93,16 @@ pub mod snake {
     fn t_new() {
         let test_snake = Snake::new(0.0);
         // new snakes start out at the center
-        let loc = test_snake._get_location();
+        let loc = test_snake.get_location();
         assert_eq!(0.0,loc.x);
         assert_eq!(0.0,loc.y);
         
         // new snakes start out going north
-        let vel = test_snake._get_velocity();
+        let vel = test_snake.get_velocity();
         assert_eq!(0.0,vel.delta_x);
         assert_eq!(1.0,vel.delta_y);
 
-        assert_eq!(1.0,test_snake._get_size());
+        assert_eq!(1.0,test_snake.get_size());
     }
 
     #[test]
@@ -116,7 +117,7 @@ pub mod snake {
         assert_eq!(1.0,coverage.end_loc.y);
         assert_eq!(1.0,coverage.width);
 
-        let loc = test_snake._get_location();
+        let loc = test_snake.get_location();
         assert_eq!(0.0,loc.x);
         assert_eq!(1.0,loc.y);
 
@@ -127,7 +128,7 @@ pub mod snake {
         assert_eq!(2.0,coverage.end_loc.y);
         assert_eq!(1.0,coverage.width);
 
-        let loc = test_snake._get_location();
+        let loc = test_snake.get_location();
         assert_eq!(0.0,loc.x);
         assert_eq!(2.0,loc.y);
 
@@ -138,7 +139,7 @@ pub mod snake {
         assert_eq!(0.5,coverage.end_loc.y);
         assert_eq!(1.0,coverage.width);
 
-        let loc = test_snake._get_location();
+        let loc = test_snake.get_location();
         assert_eq!(0.0,loc.x);
         assert_eq!(0.5,loc.y);
 
@@ -151,7 +152,7 @@ pub mod snake {
         let mut test_snake = Snake::new(0.0);
 
         // new snake should be at velY = 1 
-        let vel = test_snake._get_velocity();
+        let vel = test_snake.get_velocity();
         assert_eq!(0.0,vel.delta_x);
         assert_eq!(1.0,vel.delta_y);
 
@@ -163,7 +164,7 @@ pub mod snake {
         assert_approx_eq!(0.0,coverage.end_loc.y,1e-5);
         assert_eq!(1.0,coverage.width);
 
-        let vel = test_snake._get_velocity();
+        let vel = test_snake.get_velocity();
         assert_approx_eq!( 0.0,vel.delta_x,1e-5);
         assert_approx_eq!(-1.0,vel.delta_y,1e-5);
 
@@ -174,20 +175,20 @@ pub mod snake {
         assert_approx_eq!( 0.0,coverage.end_loc.x,1e-5);
         assert_approx_eq!(-1.0,coverage.end_loc.y,1e-5);
         assert_eq!(1.0,coverage.width);
-        let loc = test_snake._get_location();
+        let loc = test_snake.get_location();
         assert_approx_eq!( 0.0,loc.x,1e-5);
         assert_approx_eq!(-1.0,loc.y,1e-5);
 
-       // snake should be at vel (.71,-.71) after a turn of -PI/4.0 radians (-45 degrees)
-       let coverage = test_snake.turn(PI/4.0,1.0);
-       assert_approx_eq!( 0.0,coverage.start_loc.x,1e-5);
-       assert_approx_eq!(-1.0,coverage.start_loc.y,1e-5);
-       assert_approx_eq!( 0.0,coverage.end_loc.x,1e-5);
-       assert_approx_eq!(-1.0,coverage.end_loc.y,1e-5);
-       assert_eq!(1.0,coverage.width);
-      let vel = test_snake._get_velocity();
-       assert_approx_eq!( 0.7071,vel.delta_x,1e-5);
-       assert_approx_eq!(-0.7071,vel.delta_y,1e-5);
+    // snake should be at vel (.71,-.71) after a turn of -PI/4.0 radians (-45 degrees)
+    let coverage = test_snake.turn(PI/4.0,1.0);
+    assert_approx_eq!( 0.0,coverage.start_loc.x,1e-5);
+    assert_approx_eq!(-1.0,coverage.start_loc.y,1e-5);
+    assert_approx_eq!( 0.0,coverage.end_loc.x,1e-5);
+    assert_approx_eq!(-1.0,coverage.end_loc.y,1e-5);
+    assert_eq!(1.0,coverage.width);
+    let vel = test_snake.get_velocity();
+    assert_approx_eq!( 0.7071,vel.delta_x,1e-5);
+    assert_approx_eq!(-0.7071,vel.delta_y,1e-5);
 
         // snake should be at pos (.71,-1.71) after two seconds
         let coverage = test_snake.update(2.0);
@@ -196,7 +197,7 @@ pub mod snake {
         assert_approx_eq!( 0.7071,coverage.end_loc.x,1e-5);
         assert_approx_eq!(-1.7071,coverage.end_loc.y,1e-5);
         assert_eq!(1.0,coverage.width);
-         let loc = test_snake._get_location();
+        let loc = test_snake.get_location();
         assert_approx_eq!( 0.7071,loc.x,1e-5);
         assert_approx_eq!(-1.7071,loc.y,1e-5);
 
@@ -205,10 +206,16 @@ pub mod snake {
     #[test]
     fn t_eat() {
         let mut test_snake = Snake::new(0.0);
-        assert_eq!(1.0,test_snake._get_size());
+        assert_eq!(1.0,test_snake.get_size());
 
         test_snake.eat(10.0);
-        assert_eq!(2.0,test_snake._get_size());
+        assert_eq!(2.0,test_snake.get_size());
+    }
+
+    #[test]
+    fn t_snake_fmt() {
+        let test_snake = Snake::new(0.0);
+        assert_eq!("Snake at (0.0,0.0), vel <0.0,1.0>, size 1.0", format!("{}",test_snake));
     }
 
 }

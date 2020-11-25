@@ -2,6 +2,7 @@ pub mod food {
     use std::fmt;
     use crate::game::common::Coordinates;
 
+    #[derive(Copy, Clone)]
     pub struct Food {
         location: Coordinates,
         nutrition: f64,
@@ -28,7 +29,7 @@ pub mod food {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             write!(
                 f,
-                "loc = ({:.1}, {:.1}), nutrition = {:.1}",
+                "food at ({:.1}, {:.1}) with nutrition of {:.1}",
                 self.location.x, self.location.y, self.nutrition
             )
         }
@@ -37,7 +38,7 @@ pub mod food {
     #[test]
     fn t_new() {
         let test_food = Food::new(0.0,0.0);
- 
+
         let loc = test_food.get_location();
         assert_eq!(0.0,loc.x);
         assert_eq!(0.0,loc.y);
@@ -46,5 +47,11 @@ pub mod food {
         let nut = test_food.get_nutrition();
         assert_eq!(1.0,nut);
     }
-}
 
+    #[test]
+    fn t_food_fmt() {
+        let test_food = Food::new(0.0,0.0);
+        assert_eq!("food at (0.0, 0.0) with nutrition of 1.0", format!("{}",test_food));
+    }
+
+}

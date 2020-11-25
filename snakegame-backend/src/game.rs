@@ -1,7 +1,7 @@
 pub mod common {
     use std::fmt;
 
-    #[derive(Copy, Clone)]
+    #[derive(Copy, Clone, PartialEq, Debug)]
     pub struct Coordinates {pub x:f64, pub y:f64}
     impl fmt::Display for Coordinates {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -13,7 +13,13 @@ pub mod common {
         }
     }
 
-    #[derive(Copy, Clone)]
+    #[test]
+    fn t_coordinate_fmt() {
+        let test_coordinates = Coordinates{x: 0.0, y:0.0};
+        assert_eq!("(0.0,0.0)", format!("{}",test_coordinates));
+    }
+
+    #[derive(Copy, Clone, PartialEq, Debug)]
     pub struct Velocity {pub delta_x:f64, pub delta_y:f64}
     impl fmt::Display for Velocity {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -24,12 +30,20 @@ pub mod common {
             )
         }
     }
+
+    #[test]
+    fn t_velocity_fmt() {
+        let test_velocity = Velocity{delta_x: 0.0, delta_y:0.0};
+        assert_eq!("<0.0,0.0>", format!("{}",test_velocity));
+    }
+
 }
 
 pub mod game {
     use crate::snake::snake::Snake;
     use crate::snake::snake::SweepArea;
     use crate::food::food::Food;
+    use crate::eventqueue::eventqueue::EventQueue;
     //use crate::game::common::{Coordinates,Velocity};
     use std::collections::HashMap;
 
@@ -40,6 +54,7 @@ pub mod game {
         next_snake_id: usize,
         food: HashMap<usize,Food>,
         next_food_id: usize,
+        eventqueue: EventQueue,
     }
 
     use std::fmt;
@@ -65,7 +80,7 @@ pub mod game {
             for _i in 1..10 {
                 let x = rng.gen_range(new_game.size / -2.0 , new_game.size / 2.0);
                 let y = rng.gen_range(new_game.size / -2.0 , new_game.size / 2.0);
-                new_game.add_food(x,y);
+                new_game.add_food(x, y, 0.0);
             }
             new_game
         }
@@ -73,16 +88,16 @@ pub mod game {
         fn _new_test_game() -> Game {
             let mut new_game = Game::new_blank_game();
             // lay out the food in a predicatible pattern
-            new_game.add_food(-50.0, 50.0);
-            new_game.add_food(-40.0, 40.0);
-            new_game.add_food(-30.0, 30.0);
-            new_game.add_food(-20.0, 20.0);
-            new_game.add_food(-10.0, 10.0);
-            new_game.add_food( 10.0,-10.0);
-            new_game.add_food( 20.0,-20.0);
-            new_game.add_food( 30.0,-30.0);
-            new_game.add_food( 40.0,-40.0);
-            new_game.add_food( 50.0,-50.0);
+            new_game.add_food(-50.0, 50.0, 0.0);
+            new_game.add_food(-40.0, 40.0, 0.0);
+            new_game.add_food(-30.0, 30.0, 0.0);
+            new_game.add_food(-20.0, 20.0, 0.0);
+            new_game.add_food(-10.0, 10.0, 0.0);
+            new_game.add_food( 10.0,-10.0, 0.0);
+            new_game.add_food( 20.0,-20.0, 0.0);
+            new_game.add_food( 30.0,-30.0, 0.0);
+            new_game.add_food( 40.0,-40.0, 0.0);
+            new_game.add_food( 50.0,-50.0, 0.0);
             new_game
         }
 
@@ -94,6 +109,7 @@ pub mod game {
                 next_snake_id: 0,
                 food: HashMap::new(),
                 next_food_id: 0,
+                eventqueue: EventQueue::new(),
             }
         }
 
@@ -120,15 +136,16 @@ pub mod game {
                             food_idxs_to_eat.push(*food_id);
                     }
                 }
-                self.snake_eats_food(snake_id,food_idxs_to_eat);
+                self.snake_eats_food(snake_id,food_idxs_to_eat,self.time);
             }
             
         }
 
-        fn snake_eats_food(&mut self, snake_id:usize, food_ids:Vec<usize>) {
+        fn snake_eats_food(&mut self, snake_id:usize, food_ids:Vec<usize>, event_time:f64) {
             for food_to_eat_id in food_ids {
                 let food_to_eat = self.food.remove(&food_to_eat_id).unwrap();
                 self.feed_snake(snake_id, food_to_eat.get_nutrition()).expect("Invalid snake ID");
+                self.eventqueue.log_snake_ate(event_time, snake_id, food_to_eat_id);
             }
         }
 
@@ -150,11 +167,13 @@ pub mod game {
             self.time
         }
 
-        pub fn add_snake(&mut self,event_time: f64) -> usize {
-            let id = self.next_snake_id;
+        pub fn create_snake(&mut self,event_time: f64) -> usize {
+            let snake_id = self.next_snake_id;
             self.next_snake_id += 1;
-            self.snake.insert(id,Snake::new(event_time));
-            id
+            let new_snake = Snake::new(event_time);
+            self.eventqueue.log_snake_born(event_time, snake_id, new_snake);
+            self.snake.insert(snake_id,new_snake);
+            snake_id
         }
 
         pub fn get_snake(&self, snake_id:usize) -> Result<&Snake, NotFound> {
@@ -167,6 +186,7 @@ pub mod game {
 
         pub fn turn_snake(&mut self, snake_id:usize,rad_relative: f64, event_time: f64) -> Result<(), NotFound> {
             if let Some(the_snake) = self.snake.get_mut(&snake_id) {
+                self.eventqueue.log_snake_turned(event_time, snake_id, rad_relative);
                 let _coverage = the_snake.turn(rad_relative, event_time);
                 Ok(())
             } else {
@@ -174,11 +194,13 @@ pub mod game {
             }
         }
 
-        pub fn add_food(&mut self, x:f64, y:f64) -> usize {
-            let id = self.next_food_id;
+        pub fn add_food(&mut self, x:f64, y:f64, event_time: f64) -> usize {
+            let food_id = self.next_food_id;
             self.next_food_id += 1;
-            self.food.insert(id,Food::new(x,y));
-            id
+            let new_food = Food::new(x,y);
+            self.eventqueue.log_food_added(event_time, food_id, new_food);
+            self.food.insert(food_id,new_food);
+            food_id
         }
 
         pub fn _get_food(&self, food_id: usize) -> Result<&Food, NotFound> {
@@ -189,11 +211,13 @@ pub mod game {
             }
         }
 
-        fn _get_food_count(&self) -> usize {
+        pub fn _get_food_count(&self) -> usize {
             self.food.len()
         }
 
-        
+        pub fn get_event_queue_mut(&mut self) -> &mut EventQueue {
+            &mut self.eventqueue
+        }
 
     }
 
@@ -237,15 +261,15 @@ pub mod game {
         let mut test_game = Game::new_blank_game();
         let time = test_game.get_time();
         assert_eq!(0.0,time);
-     
+    
         test_game.advance_clock(1.0);
         let time = test_game.get_time();
         assert_eq!(1.0,time);
-     
+    
         test_game.advance_clock(0.5);
         let time = test_game.get_time();
         assert_eq!(1.5,time);
-     
+    
         // Advancing the clock 0 is OK (but not useful)
         test_game.advance_clock(0.0);
         let time = test_game.get_time();
@@ -267,7 +291,7 @@ pub mod game {
         // SHould really test for the error type, but don't know how.
         //assert!(result.map_err(|e| e.kind()));
 
-        let snake_id = test_game.add_snake(0.0);
+        let snake_id = test_game.create_snake(0.0);
         assert!(test_game.get_snake(snake_id).is_ok());
 
         assert!(test_game.get_snake(snake_id + 1).is_err());
@@ -285,11 +309,11 @@ pub mod game {
         // SHould really test for the error type, but don't know how.
         //assert!(result.map_err(|e| e.kind()));
 
-        let snake_id = test_game.add_snake(0.0);
+        let snake_id = test_game.create_snake(0.0);
         // new snake should be at velY = 1 
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
-            let vel = test_snake._get_velocity();
+            let vel = test_snake.get_velocity();
             assert_eq!(0.0,vel.delta_x);
             assert_eq!(1.0,vel.delta_y);
         }
@@ -299,7 +323,7 @@ pub mod game {
         assert!(result.is_ok());
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
-            let vel = test_snake._get_velocity();
+            let vel = test_snake.get_velocity();
             assert_approx_eq!(0.0,vel.delta_x,1e-5);
             assert_approx_eq!(-1.0,vel.delta_y,1e-5);
         }
@@ -308,7 +332,7 @@ pub mod game {
         test_game.advance_clock(1.0);
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
-            let loc = test_snake._get_location();
+            let loc = test_snake.get_location();
             assert_approx_eq!( 0.0,loc.x,1e-5);
             assert_approx_eq!(-1.0,loc.y,1e-5);
         }
@@ -318,7 +342,7 @@ pub mod game {
         assert!(result.is_ok());
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
-            let vel = test_snake._get_velocity();
+            let vel = test_snake.get_velocity();
             assert_approx_eq!( 0.7071,vel.delta_x,1e-5);
             assert_approx_eq!(-0.7071,vel.delta_y,1e-5);
         }
@@ -327,7 +351,7 @@ pub mod game {
         test_game.advance_clock(1.0);
         {
             let test_snake = test_game.get_snake(snake_id).unwrap();
-            let loc = test_snake._get_location();
+            let loc = test_snake.get_location();
             assert_approx_eq!( 0.7071,loc.x,1e-5);
             assert_approx_eq!(-1.7071,loc.y,1e-5);
             }
@@ -335,19 +359,19 @@ pub mod game {
     }
 
     #[test]
-    fn t_add_snake() {
- 
+    fn t_create_snake() {
+
         let mut test_game = Game::new_blank_game();
-        let snake1_id = test_game.add_snake(0.0);
-        let snake2_id = test_game.add_snake(0.0);
+        let snake1_id = test_game.create_snake(0.0);
+        let snake2_id = test_game.create_snake(0.0);
         assert_ne!(snake1_id, snake2_id);
 
         // make sure the two snakes are independent
         test_game.turn_snake(snake2_id, 1.0, 0.0).expect("Expected to access 2nd snake");
         let snake1 = test_game.get_snake(snake1_id).unwrap();
         let snake2 = test_game.get_snake(snake2_id).unwrap();
-        let vel = snake1._get_velocity();
-        let vel2 = snake2._get_velocity();
+        let vel = snake1.get_velocity();
+        let vel2 = snake2.get_velocity();
         assert_ne!(vel.delta_x,vel2.delta_x);
         assert_ne!(vel.delta_y,vel2.delta_y);
     }
@@ -358,7 +382,7 @@ pub mod game {
 
         assert_eq!(test_game._get_food_count(),0);
 
-        let food_id = test_game.add_food(23.0,34.0);
+        let food_id = test_game.add_food(23.0, 34.0, 0.0);
         assert_eq!(test_game._get_food_count(),1);
         
         let this_food = test_game._get_food(food_id).expect("Didn't get food as expected!");
